@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { PessoasService } from '../services/pessoas.service';
 
 @ApiTags('pessoas')
@@ -11,6 +11,14 @@ export class PessoasController {
   constructor(private readonly pessoasService: PessoasService) {}
 
   @Get()
+  @ApiQuery({ name: 'nome', required: false, example: 'João da Silva' })
+  @ApiQuery({ name: 'cpfCnpj', required: false, example: '123.456.789-00' })
+  @ApiQuery({ name: 'email', required: false, example: 'joao@email.com' })
+  @ApiQuery({ name: 'telefone', required: false, example: '(11) 99999-9999' })
+  @ApiQuery({ name: 'ativo', required: false, example: '1' })
+  @ApiQuery({ name: 'tipo', required: false, example: 'cliente' })
+  @ApiQuery({ name: 'page', required: false, example: 1 })
+  @ApiQuery({ name: 'perPage', required: false, example: 20 })
   async listAll(
     @Query('nome') nome?: string,
     @Query('cpfCnpj') cpfCnpj?: string,
@@ -34,6 +42,7 @@ export class PessoasController {
   }
 
   @Get(':id')
+  @ApiParam({ name: 'id', example: 123, description: 'ID do parceiro (CODPARC)' })
   async getById(@Param('id') id: string) {
     return this.pessoasService.getById(Number(id));
   }
