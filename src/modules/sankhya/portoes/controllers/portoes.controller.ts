@@ -1,7 +1,10 @@
 import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { PortoesService } from '../services/portoes.service';
 
+@ApiTags('portoes')
+@ApiBearerAuth()
 @Controller('sankhya/portoes')
 @UseGuards(AuthGuard('jwt'))
 export class PortoesController {
