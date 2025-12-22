@@ -20,7 +20,8 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
     ,
     "kill": "sh ./scripts/kill.sh",
-    "pm2:prod": "pnpm build && pm2 delete api-sankhya || true && pm2 start dist/main.js --name api-sankhya --env production && pm2 save"
+    "pm2:prod": "pnpm build && pm2 delete api-sankhya || true && pm2 start dist/main.js --name api-sankhya --env production && pm2 save",
+    "deploy:prod": "pnpm build && pm2 delete api-sankhya || true && pm2 start dist/main.js --name api-sankhya --env production && pm2 save"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
