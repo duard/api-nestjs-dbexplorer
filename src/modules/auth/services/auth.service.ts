@@ -266,7 +266,9 @@ export class AuthService {
 
       if (!result || result.length === 0) {
         console.log('[AUTH] Nenhum dado encontrado para o usuário:', userId);
-        throw new Error('Dados do usuário não encontrados');
+          const error: any = new Error('Dados do usuário não encontrados');
+          error.statusCode = 404;
+          throw error;
       }
 
       const userData = result[0];
