@@ -19,7 +19,7 @@ export class PortoesController {
     @Query('ipPortao') ipPortao?: string,
     @Query('usuario') usuario?: string,
     @Query('page') page: string = '1',
-    @Query('perPage') perPage: string = '20',
+    @Query('perPage') perPage: string = '10',
   ) {
     return this.portoesService.getPortoesAcessos(
       ipPortao,
@@ -36,7 +36,7 @@ export class PortoesController {
   async getUltimosAcessos(
     @Query('usuario') usuario?: string,
     @Query('page') page: string = '1',
-    @Query('perPage') perPage: string = '20',
+    @Query('perPage') perPage: string = '10',
   ) {
     return this.portoesService.getUltimosAcessos(
       usuario,
@@ -53,7 +53,7 @@ export class PortoesController {
     @Param('id') id: string,
     @Query('usuario') usuario?: string,
     @Query('page') page: string = '1',
-    @Query('perPage') perPage: string = '20',
+    @Query('perPage') perPage: string = '10',
   ) {
     return this.portoesService.getAcessosByPortaoId(
       id,

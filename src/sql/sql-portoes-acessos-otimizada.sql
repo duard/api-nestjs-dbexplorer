@@ -1,15 +1,10 @@
-// Query salva para consulta de acessos por portões (ad_hikvision_events)
-// Utilize esta query no InspectionService ou onde necessário
-
-export const queryPortoesAcessos = `
+-- Query otimizada para acessos por portões (paginada, sem imagem)
 SELECT
     FUN.CODFUNC AS CODIGO_FUNCIONARIO,
     FUN.NOMEFUNC AS NOME_FUNCIONARIO,
     EMP.RAZAOSOCIAL,
     FCO.DESCRCARGO AS FUNCAO,
     HIK.name AS Nome,
-    HIK.ip AS IP,
-    HIK.time AS DATA_HORA,
     CASE
         WHEN HIK.ip = '192.168.3.93' THEN 'PORTA RH, COMERCIAL, DIRETORIA'
         WHEN HIK.ip = '192.168.3.92' THEN 'ALMOXARIFADO PATIO 1'
@@ -31,16 +26,15 @@ LEFT JOIN TSIEMP EMP ON EMP.CODEMP = FUN.CODEMP
 LEFT JOIN TFPCAR FCO ON FUN.CODCARGO = FCO.CODCARGO
 WHERE
     (
-        $P{P_IP_PORTAO} IS NULL
-        OR $P{P_IP_PORTAO} = ''
-        OR ($P{P_IP_PORTAO} = '1' AND HIK.ip = '192.168.3.93')
-        OR ($P{P_IP_PORTAO} = '2' AND HIK.ip = '192.168.3.92')
-        OR ($P{P_IP_PORTAO} = '3' AND HIK.ip = '192.168.3.91')
-        OR ($P{P_IP_PORTAO} = '4' AND HIK.ip = '192.168.3.90')
-        OR (HIK.ip = $P{P_IP_PORTAO})
+        @param1 IS NULL
+        OR @param1 = ''
+        OR (@param1 = '1' AND HIK.ip = '192.168.3.93')
+        OR (@param1 = '2' AND HIK.ip = '192.168.3.92')
+        OR (@param1 = '3' AND HIK.ip = '192.168.3.91')
+        OR (@param1 = '4' AND HIK.ip = '192.168.3.90')
+        OR (HIK.ip = @param1)
     )
 ORDER BY
     FUN.NOMEFUNC,
-    HIK.time DESC
-OFFSET @param2 ROWS FETCH NEXT @param3 ROWS ONLY
-`;
+    HIK.name
+OFFSET @param2 ROWS FETCH NEXT @param3 ROWS ONLY;
