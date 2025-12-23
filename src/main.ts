@@ -133,26 +133,7 @@ async function bootstrap() {
   const gigantaoRegex = /^https?:\/\/([a-z0-9-]+\.)*gigantao\.net$/i;
 
   app.enableCors({
-    origin: (origin, callback) => {
-      const now = new Date().toISOString();
-      if (!origin) {
-        console.log(`[CORS][${now}] Sem Origin (provavelmente request do servidor ou curl). Permitido.`);
-        return callback(null, true);
-      }
-      if (allowedOrigins.includes(origin)) {
-        console.log(`[CORS][${now}] Origin PERMITIDO explicitamente: ${origin}`);
-        return callback(null, true);
-      }
-      if (gigantaoRegex.test(origin)) {
-        console.log(`[CORS][${now}] Origin PERMITIDO por regex gigantao.net: ${origin}`);
-        return callback(null, true);
-      }
-      console.warn(`[CORS][${now}] Origin BLOQUEADO: ${origin}`);
-      const err = new Error('Not allowed by CORS');
-      // Log stack trace for debugging
-      console.warn(`[CORS][${now}] Stack:`, err.stack);
-      return callback(err);
-    },
+    origin: true, // Permite qualquer origem
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
     allowedHeaders: [
