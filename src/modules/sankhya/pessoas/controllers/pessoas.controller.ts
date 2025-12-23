@@ -17,8 +17,8 @@ export class PessoasController {
   @ApiQuery({ name: 'telefone', required: false, example: '(11) 99999-9999' })
   @ApiQuery({ name: 'ativo', required: false, example: '1' })
   @ApiQuery({ name: 'tipo', required: false, example: 'cliente' })
-  @ApiQuery({ name: 'page', required: false, example: 1 })
-  @ApiQuery({ name: 'perPage', required: false, example: 20 })
+  @ApiQuery({ name: 'page', required: false, example: 1, schema: { default: 1 } })
+  @ApiQuery({ name: 'perPage', required: false, example: 10, schema: { default: 10 } })
   async listAll(
     @Query('nome') nome?: string,
     @Query('cpfCnpj') cpfCnpj?: string,
@@ -27,7 +27,7 @@ export class PessoasController {
     @Query('ativo') ativo?: string,
     @Query('tipo') tipo?: string,
     @Query('page') page: string = '1',
-    @Query('perPage') perPage: string = '20',
+    @Query('perPage') perPage: string = '10',
   ) {
     return this.pessoasService.listAll({
       nome,

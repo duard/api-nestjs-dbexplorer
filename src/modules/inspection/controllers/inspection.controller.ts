@@ -1,27 +1,25 @@
 import {
+  Body,
   Controller,
   Get,
-  Post,
-  Body,
-  Query,
   Param,
-  UseGuards,
+  Post,
+  Query
 } from '@nestjs/common';
 import {
-  ApiTags,
-  ApiOperation,
   ApiBearerAuth,
-  ApiOkResponse,
-  ApiQuery,
   ApiBody,
+  ApiOkResponse,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
 } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
-import { InspectionService } from '../services/inspection.service';
 import { QueryDto } from '../dto/inspection.dto';
+import { InspectionService } from '../services/inspection.service';
 
 @ApiTags('inspection')
 @Controller('inspection')
-@UseGuards(AuthGuard('jwt'))
+// @UseGuards(AuthGuard('jwt'))
 @ApiBearerAuth()
 export class InspectionController {
   constructor(private readonly inspectionService: InspectionService) {}
@@ -187,19 +185,7 @@ export class InspectionController {
     return this.inspectionService.executeQuery(queryDto.query, queryDto.params);
   }
 
-  @Get('table-schema/:tableName')
-  @ApiOperation({ summary: 'Get table schema structure by path parameter' })
-  async getTableSchemaByPath(@Param('tableName') tableName: string) {
-    return this.inspectionService.getTableSchema(tableName);
-  }
-
-  @Get('table-relations/:tableName')
-  @ApiOperation({
-    summary: 'Get table foreign key relations by path parameter',
-  })
-  async getTableRelationsByPath(@Param('tableName') tableName: string) {
-    return this.inspectionService.getTableRelations(tableName);
-  }
+  // ...existing code...
 
   @Get('primary-keys/:tableName')
   @ApiOperation({
