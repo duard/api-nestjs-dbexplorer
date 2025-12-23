@@ -1,7 +1,12 @@
-import { TurnoverFilters, TurnoverQueryBuilder } from '../interfaces/turnover-filters.interface';
+import {
+  TurnoverFilters,
+  TurnoverQueryBuilder,
+} from '../interfaces/turnover-filters.interface';
 
 // Dashboard Executivo - Visão consolidada com todos os KPIs principais
-export const getDashboardExecutivoQuery = (filters: TurnoverFilters = {}): string => {
+export const getDashboardExecutivoQuery = (
+  filters: TurnoverFilters = {},
+): string => {
   const validation = TurnoverQueryBuilder.validateFilters(filters);
   if (!validation.valid) {
     throw new Error(validation.error);
@@ -10,10 +15,8 @@ export const getDashboardExecutivoQuery = (filters: TurnoverFilters = {}): strin
   const whereClause = TurnoverQueryBuilder.buildWhereClause(
     filters,
     { func: 'F', dept: 'D', cargo: 'C', emp: 'EMP' },
-    {}
+    {},
   );
-
-  const { dataInicio, dataFim } = TurnoverQueryBuilder.getDateRange(filters);
 
   return `
 WITH HEADCOUNT_ATUAL AS (

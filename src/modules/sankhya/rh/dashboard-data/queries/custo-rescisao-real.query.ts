@@ -1,10 +1,15 @@
-import { TurnoverFilters, TurnoverQueryBuilder } from '../interfaces/turnover-filters.interface';
+import {
+  TurnoverFilters,
+  TurnoverQueryBuilder,
+} from '../interfaces/turnover-filters.interface';
 
 /**
  * Custos Reais de Rescisão - TFPBAS (Folha de Pagamento)
  * Retorna valores reais pagos em rescisões com filtros avançados
  */
-export const getCustoRescisaoRealQuery = (filters: TurnoverFilters = {}): string => {
+export const getCustoRescisaoRealQuery = (
+  filters: TurnoverFilters = {},
+): string => {
   // Valida filtros
   const validation = TurnoverQueryBuilder.validateFilters(filters);
   if (!validation.valid) {
@@ -15,11 +20,11 @@ export const getCustoRescisaoRealQuery = (filters: TurnoverFilters = {}): string
   const whereClause = TurnoverQueryBuilder.buildWhereClause(
     filters,
     { func: 'FUN', dept: 'DEP', cargo: 'CAR', emp: 'EMP' },
-    { demissao: 'FUN.DTDEM' } // Filtrar por data de demissão
+    { demissao: 'FUN.DTDEM' }, // Filtrar por data de demissão
   );
 
   // Período padrão: últimos 2 anos
-  const { dataInicio, dataFim } = TurnoverQueryBuilder.getDateRange(filters);
+
   const periodoBase = filters.dataInicio
     ? ``
     : `AND BAS.DTPAGAMENTO >= DATEADD(YEAR, -2, GETDATE())`;
@@ -86,4 +91,3 @@ ORDER BY
     BAS.DTPAGAMENTO DESC;
 `;
 };
-

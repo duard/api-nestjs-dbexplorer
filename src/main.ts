@@ -43,9 +43,19 @@ function requestLogger(req: Request, res: Response, next: NextFunction) {
 }
 
 async function bootstrap() {
+
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT') || 3000;
+
+  // Habilita CORS para todas as origens e métodos
+  app.enableCors({
+    origin: true,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
+    exposedHeaders: ['Content-Disposition'],
+  });
 
   app.useGlobalPipes(new ValidationPipe());
   app.use(requestLogger);

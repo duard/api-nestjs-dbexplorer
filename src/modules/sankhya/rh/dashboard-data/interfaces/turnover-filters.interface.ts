@@ -35,11 +35,16 @@ export class TurnoverQueryBuilder {
    */
   static buildWhereClause(
     filters: TurnoverFilters,
-    tableAliases: { func?: string; dept?: string; cargo?: string; emp?: string } = {},
-    dateFields: { admissao?: string; demissao?: string } = {}
+    tableAliases: {
+      func?: string;
+      dept?: string;
+      cargo?: string;
+      emp?: string;
+    } = {},
+    dateFields: { admissao?: string; demissao?: string } = {},
   ): string {
     const conditions: string[] = [];
-    const { func = 'FUN', dept = 'DEP', cargo = 'CAR', emp = 'EMP' } = tableAliases;
+    const { func = 'FUN' } = tableAliases;
 
     // Filtro de Período (demissões)
     if (filters.dataInicio && dateFields.demissao) {
@@ -79,24 +84,36 @@ export class TurnoverQueryBuilder {
     if (filters.codfunc && filters.codemp) {
       const funcionarios = filters.codfunc.split(',').map((f) => f.trim());
       const empresas = filters.codemp.split(',').map((e) => e.trim());
-      
+
       // Garante que codemp e codfunc andam juntos
       const pares = funcionarios
-        .map((codfunc) => empresas.map((codemp) => `(${func}.CODEMP = ${codemp} AND ${func}.CODFUNC = ${codfunc})`))
+        .map((codfunc) =>
+          empresas.map(
+            (codemp) =>
+              `(${func}.CODEMP = ${codemp} AND ${func}.CODFUNC = ${codfunc})`,
+          ),
+        )
         .flat();
-      
+
       conditions.push(`(${pares.join(' OR ')})`);
     }
 
     // Filtro de EXCLUSÃO - Funcionários
     if (filters.ignorarFuncionarios && filters.codemp) {
-      const funcionarios = filters.ignorarFuncionarios.split(',').map((f) => f.trim());
+      const funcionarios = filters.ignorarFuncionarios
+        .split(',')
+        .map((f) => f.trim());
       const empresas = filters.codemp.split(',').map((e) => e.trim());
-      
+
       const pares = funcionarios
-        .map((codfunc) => empresas.map((codemp) => `(${func}.CODEMP = ${codemp} AND ${func}.CODFUNC = ${codfunc})`))
+        .map((codfunc) =>
+          empresas.map(
+            (codemp) =>
+              `(${func}.CODEMP = ${codemp} AND ${func}.CODFUNC = ${codfunc})`,
+          ),
+        )
         .flat();
-      
+
       conditions.push(`NOT (${pares.join(' OR ')})`);
     }
 
@@ -124,7 +141,10 @@ export class TurnoverQueryBuilder {
   /**
    * Extrai datas com fallback para período padrão
    */
-  static getDateRange(filters: TurnoverFilters): { dataInicio: string; dataFim: string } {
+  static getDateRange(filters: TurnoverFilters): {
+    dataInicio: string;
+    dataFim: string;
+  } {
     const hoje = new Date();
     const anoAtual = hoje.getFullYear();
 
@@ -137,18 +157,23 @@ export class TurnoverQueryBuilder {
   /**
    * Valida que codfunc não seja usado sem codemp
    */
-  static validateFilters(filters: TurnoverFilters): { valid: boolean; error?: string } {
+  static validateFilters(filters: TurnoverFilters): {
+    valid: boolean;
+    error?: string;
+  } {
     if (filters.codfunc && !filters.codemp) {
       return {
         valid: false,
-        error: 'Parâmetro "codfunc" requer "codemp". codemp e codfunc sempre andam juntos.',
+        error:
+          'Parâmetro "codfunc" requer "codemp". codemp e codfunc sempre andam juntos.',
       };
     }
 
     if (filters.ignorarFuncionarios && !filters.codemp) {
       return {
         valid: false,
-        error: 'Parâmetro "ignorarFuncionarios" requer "codemp". codemp e codfunc sempre andam juntos.',
+        error:
+          'Parâmetro "ignorarFuncionarios" requer "codemp". codemp e codfunc sempre andam juntos.',
       };
     }
 
