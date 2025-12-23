@@ -47,7 +47,7 @@ function requestLogger(req: Request, res: Response, next: NextFunction) {
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
-  const port = configService.get<number>('PORT') || 3000;
+  const port = configService.get<number>('PORT') || 9050;
 
   // Middleware para logar requisições CORS e explicar problemas
   app.use((req: Request, res: Response, next: NextFunction) => {
