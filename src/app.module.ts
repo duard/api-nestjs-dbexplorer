@@ -9,6 +9,7 @@ import { InspectionModule } from './modules/inspection/inspection.module';
 import { PessoasModule } from './modules/sankhya/pessoas/pessoas.module';
 import { PortoesModule } from './modules/sankhya/portoes/portoes.module';
 import { TsiUsuModule } from './modules/sankhya/tsiusu/tsiusu.module';
+import { RhModule } from './modules/sankhya/rh/rh.module';
 import { VersionModule } from './modules/version/version.module';
 
 @Module({
@@ -23,6 +24,7 @@ import { VersionModule } from './modules/version/version.module';
     TsiUsuModule,
     PortoesModule,
     PessoasModule,
+    RhModule,
   ],
   controllers: [AppController],
   providers: [AppService, SqlServerService],
