@@ -47,44 +47,65 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT') || 3000;
 
-  // Habilita CORS para todas as origens e métodos (configuração mais permissiva)
+  // =============================================
+  // ✅ Lista explícita de domínios permitidos
+  // =============================================
+  const allowedOrigins = [
+    // 🔹 LOCAL
+    'http://localhost:3001', // Frontend local
+    'http://localhost:3101',
+    'http://localhost:5173', // Dashboard de Veiculos
+    'http://localhost:9300',
+    'http://localhost:9200',
+    'http://localhost:9100',
+    'http://localhost:9400',
+    'http://127.0.0.1:3001',
+    'http://127.0.0.1:9300',
+    'http://127.0.0.1:9200',
+    'http://127.0.0.1:9100',
+    'http://127.0.0.1:9400',
+    'https://rh-local.gigantao.net',
+    'https://api-local.gigantao.net',
+    'https://api-pontotel-local.gigantao.net',
+    'https://api-auth-local.gigantao.net',
+
+    // 🔹 DEVELOPMENT
+    'https://rh-dev.gigantao.net',
+    'https://api-dev.gigantao.net',
+    'https://api-pontotel-dev.gigantao.net',
+    'https://api-auth-dev.gigantao.net',
+
+    // 🔹 HOMOLOGATION
+    'https://rh-homolog.gigantao.net',
+    'https://api-homolog.gigantao.net',
+    'https://api-pontotel-homolog.gigantao.net',
+    'https://api-auth-homolog.gigantao.net',
+
+    // 🔹 TEST
+    'https://rh-test.gigantao.net',
+    'https://api-test.gigantao.net',
+    'https://api-pontotel-test.gigantao.net',
+    'https://api-auth-test.gigantao.net',
+
+    // 🔹 PRODUCTION
+    'https://rh.gigantao.net',
+    'https://api.gigantao.net',
+    'https://api-pontotel.gigantao.net',
+    'https://api-gigantao-raw-auth-notify.gigantao.net',
+
+    // 🔹 Serviços auxiliares
+    'https://carlos.gigantao.net',
+
+    // 🔹 Fallback localhost (para devs na rede)
+    'http://192.168.1.9:9200',
+    'http://192.168.1.9:9300',
+    'http://192.168.1.9:9100',
+    'http://192.168.1.9:9400',
+  ];
+
+  // Habilita CORS com configuração explícita
   app.enableCors({
-    origin: [
-      'http://localhost:3000',
-      'http://localhost:3001',
-      'http://localhost:3002',
-      'http://localhost:3003',
-      'http://localhost:3004',
-      'http://localhost:3005',
-      'http://localhost:3006',
-      'http://localhost:3007',
-      'http://localhost:3008',
-      'http://localhost:3009',
-      'http://localhost:3010',
-      'http://localhost:3020',
-      'http://localhost:3021',
-      'http://localhost:3022',
-      'http://localhost:3023',
-      'http://localhost:3024',
-      'http://localhost:3025',
-      'http://localhost:3026',
-      'http://localhost:3027',
-      'http://localhost:3028',
-      'http://localhost:3029',
-      'http://localhost:3030',
-      'http://localhost:8080',
-      'http://localhost:8081',
-      'http://127.0.0.1:3000',
-      'http://127.0.0.1:3001',
-      'http://127.0.0.1:3020',
-      'http://127.0.0.1:3027',
-      'http://127.0.0.1:8080',
-      'https://rh.gigantao.net',
-      /^https?:\/\/.+\.gigantao\.net$/,
-      /^https?:\/\/.+\.local\.dev$/,
-      /^https?:\/\/localhost:\d+$/,
-      /^https?:\/\/127\.0\.0\.1:\d+$/,
-    ],
+    origin: allowedOrigins,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
     allowedHeaders: [
@@ -103,6 +124,8 @@ async function bootstrap() {
       'Content-Disposition',
       'Cache-Control',
       'Pragma',
+      'If-None-Match',
+      'If-Modified-Since',
     ],
     exposedHeaders: [
       'Content-Disposition',
