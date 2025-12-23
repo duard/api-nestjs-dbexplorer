@@ -2,6 +2,9 @@ import { Inject, Injectable } from '@nestjs/common';
 import { buildPaginatedResult } from 'src/common/pagination/pagination.types';
 import { trimFields } from 'src/common/utils/trim-fields';
 import { SqlServerService } from 'src/database/sqlserver.service';
+import { buildWhere } from '../pessoas.filters';
+import { BASE_FROM, PESSOAS_SELECT } from '../pessoas.sql';
+import { PessoasFilters } from '../pessoas.types';
 import { PESSOAS_BYID_QUERY } from '../sql/pessoas-byid';
 
 @Injectable()
@@ -14,95 +17,44 @@ export class PessoasService {
 
 
 
-  async listAll(params: {
-    nome?: string;
-    cpfCnpj?: string;
-    email?: string;
-    telefone?: string;
-    ativo?: string;
-    tipo?: string;
-    page?: number;
-    perPage?: number;
-  }): Promise<any> {
-    const { nome, cpfCnpj, email, telefone, ativo, tipo, page = 1, perPage = 20 } = params;
-    let where: string[] = [];
-    let sqlParams: any[] = [];
-    if (nome) {
-      where.push('par.NOMEPARC LIKE ?');
-      sqlParams.push(`%${nome}%`);
-    }
-    if (cpfCnpj) {
-      where.push('par.CGC_CPF LIKE ?');
-      sqlParams.push(`%${cpfCnpj}%`);
-    }
-    if (email) {
-      where.push('par.EMAIL LIKE ?');
-      sqlParams.push(`%${email}%`);
-    }
-    if (telefone) {
-      where.push('(par.TELEFONE LIKE ? OR par.CELULAR LIKE ?)');
-      sqlParams.push(`%${telefone}%`, `%${telefone}%`);
-    }
-    if (ativo !== undefined) {
-      where.push('par.ATIVO = ?');
-      sqlParams.push(ativo);
-    }
-    if (tipo) {
-      // tipo pode ser cliente, fornecedor, funcionario, etc
-      const tipoMap: Record<string, string> = {
-        cliente: 'par.CLIENTE',
-        fornecedor: 'par.FORNECEDOR',
-        funcionario: 'par.FUNCIONARIO',
-        transportadora: 'par.TRANSPORTADORA',
-        vendedor: 'par.VENDEDOR',
-      };
-      if (tipoMap[tipo]) {
-        where.push(`${tipoMap[tipo]} = 1`);
-      }
-    }
-    let whereClause = where.length ? `WHERE ${where.join(' AND ')}` : '';
-    // Paginação SQL Server: OFFSET/FETCH
+  async listAll(filters: PessoasFilters) {
+    const page = filters.page ?? 1;
+    const perPage = filters.perPage ?? 20;
+
+    const { whereClause, params } = buildWhere(filters);
+    const offset = (page - 1) * perPage;
+
     const sql = `
-      SELECT
-        par.CODPARC,
-        par.NOMEPARC,
-        par.CGC_CPF,
-        par.EMAIL,
-        par.TELEFONE,
-        par.CELULAR,
-        par.ENDERECO,
-        par.NUMERO,
-        par.COMPLEMENTO,
-        par.BAIRRO,
-        par.CEP,
-        par.CODMUN,
-        par.UF,
-        par.CODPAIS,
-        par.ATIVO,
-        par.CLIENTE,
-        par.FORNECEDOR,
-        par.TRANSPORTADORA,
-        par.VENDEDOR,
-        par.FUNCIONARIO,
-        par.DTATUAL,
-        par.OBS,
-        par.CODUSU,
-        par.CODFUNC
-      FROM TGFPAR par
+      ${PESSOAS_SELECT}
+      ${BASE_FROM}
       ${whereClause}
-      ORDER BY par.CODPARC
+      ORDER BY f.CODFUNC
       OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
     `;
-    // Para total
-    const countSql = `SELECT COUNT(*) as total FROM TGFPAR par ${whereClause}`;
-    const totalRows = await this.sqlServerService.executeSQL(countSql, sqlParams);
-    const total = totalRows[0]?.total || 0;
-    // Paginação params
-    const offset = (page - 1) * perPage;
-    const paginatedParams = [...sqlParams, offset, perPage];
-    const result = await this.sqlServerService.executeSQL(sql, paginatedParams);
+
+    const countSql = `
+      SELECT COUNT(*) AS total
+      ${BASE_FROM}
+      ${whereClause}
+    `;
+
+    // MSSQL não aceita '?' como placeholder, precisa ser @paramN
+    // Adaptar params para countSql e sql
+    // Substituir todos os '?' por @paramN
+    function replacePlaceholders(query: string, params: any[]) {
+      let idx = 0;
+      return query.replace(/\?/g, () => `@param${++idx}`);
+    }
+    const countSqlFixed = replacePlaceholders(countSql, params);
+    const sqlFixed = replacePlaceholders(sql, [...params, offset, perPage]);
+    const totalResult = await this.sqlServerService.executeSQL(countSqlFixed, params);
+    const total = totalResult[0]?.total ?? 0;
+    const data = await this.sqlServerService.executeSQL(
+      sqlFixed,
+      [...params, offset, perPage],
+    );
     return buildPaginatedResult({
-      data: result.map(trimFields),
+      data: data.map(trimFields),
       total,
       page,
       perPage,

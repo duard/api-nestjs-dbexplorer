@@ -17,6 +17,10 @@ export class PessoasController {
   @ApiQuery({ name: 'telefone', required: false, example: '(11) 99999-9999' })
   @ApiQuery({ name: 'ativo', required: false, example: '1' })
   @ApiQuery({ name: 'tipo', required: false, example: 'cliente' })
+  @ApiQuery({ name: 'empresa', required: false, example: 'EMPRESA XYZ' })
+  @ApiQuery({ name: 'departamento', required: false, example: 'TI' })
+  @ApiQuery({ name: 'cargo', required: false, example: 'Analista' })
+  @ApiQuery({ name: 'situacao', required: false, example: '1', description: 'Situação do funcionário (1=Ativo, 0=Demitido, etc)' })
   @ApiQuery({ name: 'page', required: false, example: 1, schema: { default: 1 } })
   @ApiQuery({ name: 'perPage', required: false, example: 10, schema: { default: 10 } })
   async listAll(
@@ -26,6 +30,10 @@ export class PessoasController {
     @Query('telefone') telefone?: string,
     @Query('ativo') ativo?: string,
     @Query('tipo') tipo?: string,
+    @Query('empresa') empresa?: string,
+    @Query('departamento') departamento?: string,
+    @Query('cargo') cargo?: string,
+    @Query('situacao') situacao?: string,
     @Query('page') page: string = '1',
     @Query('perPage') perPage: string = '10',
   ) {
@@ -35,7 +43,11 @@ export class PessoasController {
       email,
       telefone,
       ativo,
-      tipo,
+      tipo: (['cliente','fornecedor','funcionario','transportadora','vendedor'].includes(tipo as string) ? tipo as any : undefined),
+      empresa,
+      departamento,
+      cargo,
+      situacao,
       page: Number(page),
       perPage: Number(perPage),
     });

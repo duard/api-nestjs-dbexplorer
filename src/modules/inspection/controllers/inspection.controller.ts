@@ -150,13 +150,13 @@ export class InspectionController {
           type: 'string',
           description: 'SQL SELECT query to execute',
           example:
-            "SELECT TOP 10 CODFUN, NOMEFUN FROM TFPFUN WHERE ATIVO = 'S'",
+`SELECT TOP 10\n  F.CODEMP,\n  F.CODFUNC,\n  F.NOMEFUNC,\n  F.DTNASC,\n  F.DTADM,\n  F.CPF,\n  F.CELULAR,\n  F.EMAIL,\n  F.SITUACAO,\n  U.CODUSU,\n  U.NOMEUSU,\n  U.EMAIL AS EMAILUSU,\n  U.AD_TELEFONECORP,\n  P.CODPARC,\n  P.NOMEPARC\nFROM TFPFUN F\nLEFT JOIN TSIUSU U\n  ON F.CODEMP = U.CODEMP AND F.CODFUNC = U.CODFUNC\nLEFT JOIN TGFPAR P\n  ON F.CODPARC = P.CODPARC\nORDER BY F.DTADM DESC;`,
         },
         params: {
           type: 'array',
           items: { type: 'string' },
           description: 'Query parameters (optional)',
-          example: ['S', 'ACTIVE'],
+          example: [],
         },
       },
       required: ['query'],
@@ -167,12 +167,12 @@ export class InspectionController {
     schema: {
       example: {
         query:
-          'SELECT TOP 10 CODFUN, NOMEFUN FROM TFPFUN WHERE ATIVO = @param1',
-        params: ['S'],
+          'SELECT TOP 10 CODFUNC, NOMEFUNC FROM TFPFUN ORDER BY CODFUNC DESC',
+        params: [],
         data: [
-          { CODFUN: 1, NOMEFUN: 'JOÃO SILVA' },
-          { CODFUN: 2, NOMEFUN: 'MARIA SANTOS' },
-          { CODFUN: 3, NOMEFUN: 'PEDRO COSTA' },
+          { CODFUNC: 1, NOMEFUNC: 'JOÃO SILVA' },
+          { CODFUNC: 2, NOMEFUNC: 'MARIA SANTOS' },
+          { CODFUNC: 3, NOMEFUNC: 'PEDRO COSTA' },
         ],
         rowCount: 3,
       },

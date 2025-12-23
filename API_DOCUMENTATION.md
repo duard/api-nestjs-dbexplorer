@@ -169,9 +169,9 @@ curl -X 'GET' \
   "tableName": "TFPFUN",
   "primaryKeys": [
     {
-      "COLUMN_NAME": "CODFUN",
+      "COLUMN_NAME": "CODFUNC",
       "ORDINAL_POSITION": 1,
-      "CONSTRAINT_NAME": "PK_TFPUN"
+      "CONSTRAINT_NAME": "PK_TFPFUN"
     }
   ],
   "totalPrimaryKeys": 1
@@ -189,8 +189,8 @@ curl -X 'POST' \
   -H 'Content-Type: application/json' \
   -H 'Authorization: Bearer SEU_TOKEN_AQUI' \
   -d '{
-    "query": "SELECT TOP 10 CODFUN, NOMEFUNC FROM TFPUN WHERE ATIVO = 'S'",
-    "params": ["S"]
+    "query": "SELECT TOP 10 CODFUNC, NOMEFUNC FROM TFPFUN ORDER BY CODFUNC DESC",
+    "params": []
   }'
 ```
 

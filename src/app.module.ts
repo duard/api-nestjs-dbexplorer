@@ -6,6 +6,7 @@ import { SqlServerService } from './database/sqlserver.service';
 import { AuthModule } from './modules/auth/auth.module';
 import { HealthModule } from './modules/health/health.module';
 import { InspectionModule } from './modules/inspection/inspection.module';
+import { PessoasModule } from './modules/sankhya/pessoas/pessoas.module';
 import { PortoesModule } from './modules/sankhya/portoes/portoes.module';
 import { TsiUsuModule } from './modules/sankhya/tsiusu/tsiusu.module';
 import { VersionModule } from './modules/version/version.module';
@@ -21,6 +22,7 @@ import { VersionModule } from './modules/version/version.module';
     InspectionModule,
     TsiUsuModule,
     PortoesModule,
+    PessoasModule,
   ],
   controllers: [AppController],
   providers: [AppService, SqlServerService],
