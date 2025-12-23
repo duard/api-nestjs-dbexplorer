@@ -129,9 +129,18 @@ async function bootstrap() {
     'http://192.168.1.9:9400',
   ];
 
-  // Habilita CORS com configuração explícita
+  // Regex para aceitar qualquer subdomínio de gigantao.net
+  const gigantaoRegex = /^https?:\/\/([a-z0-9-]+\.)*gigantao\.net$/i;
+
   app.enableCors({
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin) || gigantaoRegex.test(origin)) {
+        return callback(null, true);
+      }
+      console.warn(`[CORS] Bloqueado: ${origin}`);
+      return callback(new Error('Not allowed by CORS'));
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
     allowedHeaders: [
@@ -140,9 +149,6 @@ async function bootstrap() {
       'Accept',
       'Origin',
       'X-Requested-With',
-      'Access-Control-Allow-Origin',
-      'Access-Control-Allow-Headers',
-      'Access-Control-Allow-Methods',
       'X-Total-Count',
       'X-Page-Count',
       'X-Current-Page',
@@ -159,8 +165,6 @@ async function bootstrap() {
       'X-Page-Count',
       'X-Current-Page',
       'X-Per-Page',
-      'Access-Control-Allow-Origin',
-      'Access-Control-Allow-Credentials',
     ],
     preflightContinue: false,
     optionsSuccessStatus: 204,
