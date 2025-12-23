@@ -1,3 +1,4 @@
+
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
@@ -5,47 +6,72 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { NextFunction, Request, Response } from 'express';
 import { AppModule } from './app.module';
 
+// Middleware global de logging detalhado
+function requestLogger(req: Request, res: Response, next: NextFunction) {
+  const timestamp = new Date().toISOString();
+  const method = req.method;
+  const url = req.url;
+  const ip = req.ip || req.connection.remoteAddress;
+  const userAgent = req.get('User-Agent');
+
+  console.log(`\n📥 [${timestamp}] ${method} ${url}`);
+  console.log(`   IP: ${ip}`);
+  console.log(`   User-Agent: ${userAgent}`);
+
+  const originalSend = res.send;
+  const startTime = Date.now();
+
+  res.send = function (body) {
+    const endTime = Date.now();
+    const duration = endTime - startTime;
+    const statusCode = res.statusCode;
+
+    console.log(
+      `📤 [${timestamp}] ${method} ${url} - ${statusCode} (${duration}ms)`,
+    );
+    console.log(`   Response Status: ${statusCode}`);
+    console.log(`   Duration: ${duration}ms`);
+    if (body && typeof body === 'object') {
+      console.log(`   Response Body:`, JSON.stringify(body, null, 2));
+    } else if (body) {
+      console.log(`   Response Body:`, body);
+    }
+    console.log('─'.repeat(80));
+
+    return originalSend.call(this, body);
+  };
+
+  next();
+}
+
 async function bootstrap() {
-  // Middleware para logar requisições
-  app.use((req: Request, res: Response, next: NextFunction) => {
-    const timestamp = new Date().toISOString();
-    const method = req.method;
-    const url = req.url;
-    const ip = req.ip || req.connection.remoteAddress;
-    const userAgent = req.get('User-Agent');
-
-    console.log(`\n📥 [${timestamp}] ${method} ${url}`);
-    console.log(`   IP: ${ip}`);
-    console.log(`   User-Agent: ${userAgent}`);
-
-    const originalSend = res.send;
-    const startTime = Date.now();
-
-    res.send = function (body) {
-      const endTime = Date.now();
-      const duration = endTime - startTime;
-      const statusCode = res.statusCode;
-
-      console.log(
-        `📤 [${timestamp}] ${method} ${url} - ${statusCode} (${duration}ms)`,
-      );
-      console.log(`   Response Status: ${statusCode}`);
-      console.log(`   Duration: ${duration}ms`);
-      if (body && typeof body === 'object') {
-        console.log(`   Response Body:`, JSON.stringify(body, null, 2));
-      } else if (body) {
-        console.log(`   Response Body:`, body);
-      }
-      console.log('─'.repeat(80));
-
-      return originalSend.call(this, body);
-    };
-
-    next();
-  });
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT') || 3000;
+
+  // Middleware para logar requisições CORS e explicar problemas
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    const origin = req.headers.origin;
+    const method = req.method;
+    const corsHeaders = req.headers['access-control-request-headers'];
+    const url = req.url;
+    if (method === 'OPTIONS') {
+      console.log(`\n[CORS][Preflight] OPTIONS ${url}`);
+      console.log(`  Origin: ${origin}`);
+      console.log(`  Request Headers: ${corsHeaders}`);
+      console.log('  Explicação: Navegador está testando permissões CORS para esta origem e headers.');
+    }
+    if (origin) {
+      console.log(`\n[CORS] ${method} ${url}`);
+      console.log(`  Origin: ${origin}`);
+      if (!res.getHeader('Access-Control-Allow-Origin')) {
+        console.log('  [CORS] Problema: Resposta não contém Access-Control-Allow-Origin. O navegador irá bloquear.');
+      }
+    }
+    next();
+  });
+
+  app.use(requestLogger);
 
   // =============================================
   // ✅ Lista explícita de domínios permitidos
