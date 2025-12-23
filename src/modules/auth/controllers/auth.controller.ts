@@ -56,7 +56,14 @@ export class AuthController {
       },
     },
   })
-  async login(@Body() loginDto: LoginDto) {
+  async login(@Body() loginDto: LoginDto, @Request() req) {
+    const origin = req.headers['origin'] || req.headers['referer'] || 'unknown';
+    const ip = req.ip || req.connection?.remoteAddress || 'unknown';
+    const userAgent = req.headers['user-agent'] || 'unknown';
+    console.log(`\n[LOGIN ATTEMPT] Usuário: ${loginDto.username}`);
+    console.log(`  Origem: ${origin}`);
+    console.log(`  IP: ${ip}`);
+    console.log(`  User-Agent: ${userAgent}`);
     return this.authService.login(loginDto.username, loginDto.password);
   }
 
