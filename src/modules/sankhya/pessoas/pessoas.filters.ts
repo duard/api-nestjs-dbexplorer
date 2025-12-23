@@ -50,6 +50,22 @@ export function buildWhere(filters: PessoasFilters) {
     where.push('f.SITUACAO = ?');
     params.push(filters.situacao);
   }
+  if (filters.cliente) {
+    where.push('par.CLIENTE = ?');
+    params.push(filters.cliente);
+  }
+  if (filters.fornecedor) {
+    where.push('par.FORNECEDOR = ?');
+    params.push(filters.fornecedor);
+  }
+  if (filters.transportadora) {
+    where.push('par.TRANSPORTADORA = ?');
+    params.push(filters.transportadora);
+  }
+  if (filters.vendedor) {
+    where.push('par.VENDEDOR = ?');
+    params.push(filters.vendedor);
+  }
   return {
     whereClause: where.length ? `WHERE ${where.join(' AND ')}` : '',
     params,

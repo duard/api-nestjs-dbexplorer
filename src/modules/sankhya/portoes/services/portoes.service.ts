@@ -35,8 +35,9 @@ export class PortoesService {
   }
 
   async getUltimosAcessos(usuario?: string, page = 1, perPage = 20): Promise<PaginatedResult<any>> {
+    const offset = (page - 1) * perPage;
     const startTime = Date.now();
-    let allResults = await this.sqlServerService.executeSQL(queryPortoesUltimosAcessos, []);
+    let allResults = await this.sqlServerService.executeSQL(queryPortoesUltimosAcessos, [offset, perPage]);
     const sqlTime = Date.now() - startTime;
     console.log(`[PERF] getUltimosAcessos SQL: ${sqlTime}ms, total rows: ${allResults.length}`);
     if (usuario) {
@@ -47,14 +48,14 @@ export class PortoesService {
       );
     }
     const total = allResults.length;
-    const start = (page - 1) * perPage;
-    const data = allResults.slice(start, start + perPage).map(trimFields);
+    const data = allResults.map(trimFields);
     return buildPaginatedResult({ data, total, page, perPage });
   }
 
   async getAcessosByPortaoId(portaoId: string, usuario?: string, page = 1, perPage = 20): Promise<PaginatedResult<any>> {
+    const offset = (page - 1) * perPage;
     const startTime = Date.now();
-    let allResults = await this.sqlServerService.executeSQL(queryPortoesAcessosByPortaoId, [portaoId]);
+    let allResults = await this.sqlServerService.executeSQL(queryPortoesAcessosByPortaoId, [portaoId, offset, perPage]);
     const sqlTime = Date.now() - startTime;
     console.log(`[PERF] getAcessosByPortaoId SQL: ${sqlTime}ms, total rows: ${allResults.length}`);
     if (usuario) {
@@ -65,8 +66,7 @@ export class PortoesService {
       );
     }
     const total = allResults.length;
-    const start = (page - 1) * perPage;
-    const data = allResults.slice(start, start + perPage).map(trimFields);
+    const data = allResults.map(trimFields);
     return buildPaginatedResult({ data, total, page, perPage });
   }
 

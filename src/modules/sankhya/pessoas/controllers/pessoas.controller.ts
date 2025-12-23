@@ -11,18 +11,22 @@ export class PessoasController {
   constructor(private readonly pessoasService: PessoasService) {}
 
   @Get()
-  @ApiQuery({ name: 'nome', required: false, example: 'João da Silva' })
-  @ApiQuery({ name: 'cpfCnpj', required: false, example: '123.456.789-00' })
-  @ApiQuery({ name: 'email', required: false, example: 'joao@email.com' })
-  @ApiQuery({ name: 'telefone', required: false, example: '(11) 99999-9999' })
-  @ApiQuery({ name: 'ativo', required: false, example: '1' })
-  @ApiQuery({ name: 'tipo', required: false, example: 'cliente' })
-  @ApiQuery({ name: 'empresa', required: false, example: 'EMPRESA XYZ' })
-  @ApiQuery({ name: 'departamento', required: false, example: 'TI' })
-  @ApiQuery({ name: 'cargo', required: false, example: 'Analista' })
-  @ApiQuery({ name: 'situacao', required: false, example: '1', description: 'Situação do funcionário (1=Ativo, 0=Demitido, etc)' })
-  @ApiQuery({ name: 'page', required: false, example: 1, schema: { default: 1 } })
-  @ApiQuery({ name: 'perPage', required: false, example: 10, schema: { default: 10 } })
+  @ApiQuery({ name: 'nome', required: false })
+  @ApiQuery({ name: 'cpfCnpj', required: false })
+  @ApiQuery({ name: 'email', required: false })
+  @ApiQuery({ name: 'telefone', required: false })
+  @ApiQuery({ name: 'ativo', required: false })
+  @ApiQuery({ name: 'tipo', required: false })
+  @ApiQuery({ name: 'empresa', required: false })
+  @ApiQuery({ name: 'departamento', required: false })
+  @ApiQuery({ name: 'cargo', required: false })
+  @ApiQuery({ name: 'situacao', required: false })
+  @ApiQuery({ name: 'cliente', required: false, description: "'S' para sim, 'N' para não" })
+  @ApiQuery({ name: 'fornecedor', required: false, description: "'S' para sim, 'N' para não" })
+  @ApiQuery({ name: 'transportadora', required: false, description: "'S' para sim, 'N' para não" })
+  @ApiQuery({ name: 'vendedor', required: false, description: "'S' para sim, 'N' para não" })
+  @ApiQuery({ name: 'page', required: false, schema: { default: 1 } })
+  @ApiQuery({ name: 'perPage', required: false, schema: { default: 10 } })
   async listAll(
     @Query('nome') nome?: string,
     @Query('cpfCnpj') cpfCnpj?: string,
@@ -34,6 +38,10 @@ export class PessoasController {
     @Query('departamento') departamento?: string,
     @Query('cargo') cargo?: string,
     @Query('situacao') situacao?: string,
+    @Query('cliente') cliente?: string,
+    @Query('fornecedor') fornecedor?: string,
+    @Query('transportadora') transportadora?: string,
+    @Query('vendedor') vendedor?: string,
     @Query('page') page: string = '1',
     @Query('perPage') perPage: string = '10',
   ) {
@@ -48,6 +56,10 @@ export class PessoasController {
       departamento,
       cargo,
       situacao,
+      cliente,
+      fornecedor,
+      transportadora,
+      vendedor,
       page: Number(page),
       perPage: Number(perPage),
     });

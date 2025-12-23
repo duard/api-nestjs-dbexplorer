@@ -2,7 +2,6 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { SqlServerService } from '../../../database/sqlserver.service';
-import { sqlVarBaseToStr } from '../../../utils/sankhya/pass';
 
 @Injectable()
 export class AuthService {
@@ -19,44 +18,33 @@ export class AuthService {
     try {
       console.log('[AUTH] Tentando login para usuário:', username);
 
-      const normalizedUsername = username.toLowerCase();
 
-      // First, check if the user exists based on the username
+      const normalizedUsername = username.toLowerCase();
+      // Busca usuário por nome
       const userExistenceQuery = `SELECT CODUSU, NOMEUSU, EMAIL FROM TSIUSU WHERE NOMEUSU = @param1`;
       const userExistenceParams = [normalizedUsername];
-      const existingUserResult = await this.sqlServerService.executeSQL(
-        userExistenceQuery,
-        userExistenceParams,
-      );
-
+      const existingUserResult = await this.sqlServerService.executeSQL(userExistenceQuery, userExistenceParams);
       if (!existingUserResult || existingUserResult.length === 0) {
-        console.log('[AUTH] Usuário não encontrado:', username);
-        throw new UnauthorizedException('Credenciais inválidas');
+        throw new UnauthorizedException('Usuário não encontrado');
       }
 
+      // Hash MD5 de (username + password).trim()
+      const { createHash } = await import('crypto');
+      function hashString(input: string): string {
+        return createHash('md5').update(input).digest('hex');
+      }
+      function sqlVarBaseToStr(nomeUsu: string, cgc: string): string {
+        const concatenatedString = (nomeUsu + cgc).trim();
+        return hashString(concatenatedString);
+      }
       const passwordHash = sqlVarBaseToStr(username, password);
-
-      console.log('[AUTH] Hash calculado:', passwordHash);
-
       const query = `SELECT CODUSU, NOMEUSU, EMAIL FROM TSIUSU WHERE NOMEUSU = @param1 AND INTERNO = @param2`;
       const params = [normalizedUsername, passwordHash];
-
-      console.log(
-        '[AUTH] Executando consulta SQL:',
-        query,
-        'com parâmetros:',
-        params,
-      );
-
       const result = await this.sqlServerService.executeSQL(query, params);
-
       if (!result || result.length === 0) {
-        console.log('[AUTH] Senha inválida para o usuário:', username);
-        throw new UnauthorizedException('Credenciais inválidas');
+        throw new UnauthorizedException('Senha inválida');
       }
-
       const user = result[0];
-      console.log('[AUTH] Usuário autenticado:', user);
 
       // Query detalhada para preencher o payload do token com dados completos
       const userDetailsQuery = `

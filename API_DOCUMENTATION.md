@@ -169,9 +169,9 @@ curl -X 'GET' \
   "tableName": "TFPFUN",
   "primaryKeys": [
     {
-      "COLUMN_NAME": "CODFUNC",
+      "COLUMN_NAME": "CODFUN",
       "ORDINAL_POSITION": 1,
-      "CONSTRAINT_NAME": "PK_TFPFUN"
+      "CONSTRAINT_NAME": "PK_TFPUN"
     }
   ],
   "totalPrimaryKeys": 1

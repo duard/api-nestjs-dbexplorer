@@ -18,29 +18,27 @@ SELECT
         ELSE HIK.ip
     END AS Portao
 FROM
-    ad_hikvision_events HIK
-    LEFT JOIN TSIUSU USU ON
-    (
-        HIK.name COLLATE Latin1_General_CI_AI = USU.NOMEUSU
-        OR HIK.name COLLATE Latin1_General_CI_AI = USU.NOMEUSUCPLT
-        OR HIK.name COLLATE Latin1_General_CI_AI LIKE REPLACE(USU.NOMEUSU, '.', '%')
-        OR USU.NOMEUSUCPLT COLLATE Latin1_General_CI_AI LIKE REPLACE(HIK.name, '.', '%')
+    ad_hikvision_events HIK WITH (NOLOCK)
+    LEFT JOIN TSIUSU USU WITH (NOLOCK) ON USU.NOMEUSU IS NOT NULL AND (
+        HIK.name = USU.NOMEUSU
+        OR HIK.name = USU.NOMEUSUCPLT
+        OR CHARINDEX(REPLACE(USU.NOMEUSU, '.', ''), HIK.name) > 0
+        OR CHARINDEX(REPLACE(HIK.name, '.', ''), USU.NOMEUSUCPLT) > 0
     )
-LEFT JOIN TFPFUN FUN ON USU.CODFUNC = FUN.CODFUNC AND USU.CODEMP = FUN.CODEMP
-LEFT JOIN TSIEMP EMP ON EMP.CODEMP = FUN.CODEMP
-LEFT JOIN TFPCAR FCO ON FUN.CODCARGO = FCO.CODCARGO
+LEFT JOIN TFPFUN FUN WITH (NOLOCK) ON USU.CODFUNC = FUN.CODFUNC AND USU.CODEMP = FUN.CODEMP
+LEFT JOIN TSIEMP EMP WITH (NOLOCK) ON EMP.CODEMP = FUN.CODEMP
+LEFT JOIN TFPCAR FCO WITH (NOLOCK) ON FUN.CODCARGO = FCO.CODCARGO
 WHERE
     (
-        $P{P_IP_PORTAO} IS NULL
-        OR $P{P_IP_PORTAO} = ''
-        OR ($P{P_IP_PORTAO} = '1' AND HIK.ip = '192.168.3.93')
-        OR ($P{P_IP_PORTAO} = '2' AND HIK.ip = '192.168.3.92')
-        OR ($P{P_IP_PORTAO} = '3' AND HIK.ip = '192.168.3.91')
-        OR ($P{P_IP_PORTAO} = '4' AND HIK.ip = '192.168.3.90')
-        OR (HIK.ip = $P{P_IP_PORTAO})
+        @param1 IS NULL
+        OR @param1 = ''
+        OR (@param1 = '1' AND HIK.ip = '192.168.3.93')
+        OR (@param1 = '2' AND HIK.ip = '192.168.3.92')
+        OR (@param1 = '3' AND HIK.ip = '192.168.3.91')
+        OR (@param1 = '4' AND HIK.ip = '192.168.3.90')
+        OR (HIK.ip = @param1)
     )
 ORDER BY
-    FUN.NOMEFUNC,
     HIK.time DESC
-OFFSET @param2 ROWS FETCH NEXT @param3 ROWS ONLY
+OFFSET @param2 ROWS FETCH NEXT @param3 ROWS ONLY;
 `;

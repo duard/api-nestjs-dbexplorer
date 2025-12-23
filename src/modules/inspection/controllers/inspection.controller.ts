@@ -4,7 +4,8 @@ import {
   Get,
   Param,
   Post,
-  Query
+  Query,
+  UseGuards
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -14,13 +15,15 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
+
+import { AuthGuard } from '@nestjs/passport';
 import { QueryDto } from '../dto/inspection.dto';
 import { InspectionService } from '../services/inspection.service';
 
 @ApiTags('inspection')
-@Controller('inspection')
-// @UseGuards(AuthGuard('jwt'))
 @ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'))
+@Controller('inspection')
 export class InspectionController {
   constructor(private readonly inspectionService: InspectionService) {}
 

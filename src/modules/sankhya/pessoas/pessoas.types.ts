@@ -9,6 +9,10 @@ export interface PessoasFilters {
   departamento?: string;
   cargo?: string;
   situacao?: string;
+  cliente?: string; // 'S' ou 'N'
+  fornecedor?: string; // 'S' ou 'N'
+  transportadora?: string; // 'S' ou 'N'
+  vendedor?: string; // 'S' ou 'N'
   page?: number;
   perPage?: number;
 }
